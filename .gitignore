@@ -1,0 +1,26 @@
+# Secrets: never commit
+.env
+.env.*
+!.env.example
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+TestResults/
+*.db
+*.db-shm
+*.db-wal
+
+# Node / Vite
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Editors and OS
+.idea/
+.vscode/
+Thumbs.db
+.DS_Store
