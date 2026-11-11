@@ -8,6 +8,7 @@ import { defineConfig } from 'vite'
 const backendUrl = 'http://localhost:5297'
 
 export default defineConfig({
+  base: '/tollgate/',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: { '@': path.resolve(import.meta.dirname, 'src') },
