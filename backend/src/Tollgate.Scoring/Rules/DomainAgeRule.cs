@@ -24,5 +24,5 @@ public sealed class DomainAgeRule(DomainAgeScoring options) : IScoringRule
     }
 
     private static Finding DomainTooNew(int ageDays, int penalty) =>
-        new(ThreatSource.Rdap, $"Domain was registered only {ageDays} days ago", penalty);
+        new(ThreatSource.Rdap, FindingKind.DomainRecentlyRegistered, $"Domain was registered only {ageDays} days ago", penalty);
 }

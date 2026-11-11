@@ -12,6 +12,7 @@ public sealed class SafeBrowsingRule(SafeBrowsingScoring options) : IScoringRule
         {
             yield return new Finding(
                 ThreatSource.SafeBrowsing,
+                FindingKind.SafeBrowsingListed,
                 "URL is on a Google Safe Browsing blacklist",
                 options.ListedPenalty,
                 options.ListedCap);

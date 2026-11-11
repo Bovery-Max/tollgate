@@ -1,5 +1,5 @@
 // The three demo results from the original presentation (100 / 63 / 0) must come out exactly the same.
-// The PDF gives only prose for each scenario, so the exact evidence below is our documented reading of it:
+// The presentation gives only prose for each scenario, so the exact evidence below is our documented reading of it:
 // the "bonus" link is 12 (1 malicious) + 10 (2 suspicious) + 5 (domain < 180 days) + 10 (1 URLhaus host record) = 37.
 using Tollgate.Domain;
 using Tollgate.Domain.Evidence;

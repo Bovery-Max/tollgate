@@ -2,6 +2,7 @@
 // The cap stops one severe finding from being "averaged away" by clean results from other sources.
 using Tollgate.Domain;
 using Tollgate.Domain.Evidence;
+using Tollgate.Scoring.Heuristics;
 using Tollgate.Scoring.Rules;
 
 namespace Tollgate.Scoring;
@@ -12,6 +13,7 @@ public sealed class ScoringEngine
     public const int MaxScore = 100;
 
     private readonly IReadOnlyList<IScoringRule> _rules;
+    private readonly IReadOnlyList<IUrlHeuristic> _heuristics;
     private readonly VerdictClassifier _verdictClassifier;
     private readonly ConfidenceClassifier _confidenceClassifier;
 
@@ -25,13 +27,27 @@ public sealed class ScoringEngine
             new UrlHausRule(options.UrlHaus),
             new DomainAgeRule(options.DomainAge),
         ];
+
+        // Local analysis reads the URL itself, so it works with or without any source answering.
+        var local = options.LocalAnalysis;
+        _heuristics =
+        [
+            new LookalikeAlphabetHeuristic(local.Lookalike),
+            new TyposquattingHeuristic(local.Typosquatting),
+            new SuspiciousTldHeuristic(local.SuspiciousTld),
+            new IpHostHeuristic(local.IpHost),
+            new UserInfoHeuristic(local.UserInfo),
+        ];
         _verdictClassifier = new VerdictClassifier(options.VerdictThresholds);
         _confidenceClassifier = new ConfidenceClassifier(options.ConfidenceThresholds);
     }
 
     public ScanResult Score(string normalizedUrl, ScanEvidence evidence)
     {
-        var findings = _rules.SelectMany(rule => rule.Evaluate(evidence)).ToList();
+        var url = new Uri(normalizedUrl);
+        var findings = _rules.SelectMany(rule => rule.Evaluate(evidence))
+            .Concat(_heuristics.SelectMany(heuristic => heuristic.Evaluate(url)))
+            .ToList();
 
         var scoreBeforeCap = Math.Max(MinScore, MaxScore - findings.Sum(f => f.PointsDeducted));
         var lowestCap = findings

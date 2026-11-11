@@ -9,11 +9,18 @@ public sealed record ScanEvidence(
     UrlHausEvidence? UrlHaus,
     RdapEvidence? Rdap)
 {
+    /// <summary>
+    /// The sources asked over the network, in display order. <see cref="ThreatSource.LocalAnalysis"/> is left out on
+    /// purpose: it cannot fail, so counting it would make a total outage look like a partial answer.
+    /// </summary>
+    public static IReadOnlyList<ThreatSource> QueriedSources { get; } =
+        [ThreatSource.VirusTotal, ThreatSource.SafeBrowsing, ThreatSource.UrlHaus, ThreatSource.Rdap];
+
     public IReadOnlyList<ThreatSource> RespondedSources =>
-        Enum.GetValues<ThreatSource>().Where(HasResponded).ToList();
+        QueriedSources.Where(HasResponded).ToList();
 
     public IReadOnlyList<ThreatSource> UnavailableSources =>
-        Enum.GetValues<ThreatSource>().Where(source => !HasResponded(source)).ToList();
+        QueriedSources.Where(source => !HasResponded(source)).ToList();
 
     private bool HasResponded(ThreatSource source) => source switch
     {

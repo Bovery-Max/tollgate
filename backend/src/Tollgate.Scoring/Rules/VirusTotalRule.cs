@@ -19,6 +19,7 @@ public sealed class VirusTotalRule(VirusTotalScoring options) : IScoringRule
         {
             yield return new Finding(
                 ThreatSource.VirusTotal,
+                FindingKind.EnginesMalicious,
                 $"Engines flagging the URL as malicious: {malicious}",
                 Math.Min(malicious * options.MaliciousPenaltyPerEngine, options.MaliciousMaxPenalty),
                 LowestMatchingCap(malicious));
@@ -29,6 +30,7 @@ public sealed class VirusTotalRule(VirusTotalScoring options) : IScoringRule
         {
             yield return new Finding(
                 ThreatSource.VirusTotal,
+                FindingKind.EnginesSuspicious,
                 $"Engines flagging the URL as suspicious: {suspicious}",
                 Math.Min(suspicious * options.SuspiciousPenaltyPerEngine, options.SuspiciousMaxPenalty));
         }

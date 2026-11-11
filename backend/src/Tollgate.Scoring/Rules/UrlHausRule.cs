@@ -19,6 +19,7 @@ public sealed class UrlHausRule(UrlHausScoring options) : IScoringRule
             case UrlHausUrlStatus.ActivelyDistributing:
                 yield return new Finding(
                     ThreatSource.UrlHaus,
+                    FindingKind.UrlActivelyDistributingMalware,
                     "URL is actively distributing malware",
                     options.ActiveUrlPenalty,
                     options.ActiveUrlCap);
@@ -26,6 +27,7 @@ public sealed class UrlHausRule(UrlHausScoring options) : IScoringRule
             case UrlHausUrlStatus.PastRecord:
                 yield return new Finding(
                     ThreatSource.UrlHaus,
+                    FindingKind.UrlDistributedMalwareInPast,
                     "URL distributed malware in the past",
                     options.PastUrlPenalty,
                     options.PastUrlCap);
@@ -37,6 +39,7 @@ public sealed class UrlHausRule(UrlHausScoring options) : IScoringRule
             var penalty = options.HostRecordBasePenalty + options.HostRecordPenaltyPerRecord * urlHaus.HostRecordCount;
             yield return new Finding(
                 ThreatSource.UrlHaus,
+                FindingKind.DomainHasMalwareRecords,
                 $"Past malware records on the domain: {urlHaus.HostRecordCount}",
                 Math.Min(penalty, options.HostRecordMaxPenalty));
         }

@@ -10,6 +10,7 @@ public sealed record ScoringOptions
     public required SafeBrowsingScoring SafeBrowsing { get; init; }
     public required UrlHausScoring UrlHaus { get; init; }
     public required DomainAgeScoring DomainAge { get; init; }
+    public required LocalAnalysisScoring LocalAnalysis { get; init; }
     public required VerdictThresholds VerdictThresholds { get; init; }
     public required ConfidenceThresholds ConfidenceThresholds { get; init; }
 }

@@ -169,7 +169,7 @@ public class ScoringEngineTests
         var result = _engine.Score(Url, new ScanEvidence(null, null, null, null));
 
         Assert.Equal(Confidence.Low, result.Confidence);
-        Assert.Equal(Enum.GetValues<ThreatSource>(), result.UnavailableSources);
+        Assert.Equal(ScanEvidence.QueriedSources, result.UnavailableSources);
         Assert.Empty(result.Findings);
     }
 
