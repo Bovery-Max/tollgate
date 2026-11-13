@@ -17,6 +17,10 @@ describe('buildShareLink', () => {
   it('drops whatever path the page happened to be on', () => {
     expect(buildShareLink('http://localhost:5173/design', 'https://a.test/')).toBe('http://localhost:5173/?url=https%3A%2F%2Fa.test%2F')
   })
+
+  it('keeps the sub-path the app is served under', () => {
+    expect(buildShareLink('https://user.github.io', 'https://a.test/', '/tollgate/')).toBe('https://user.github.io/tollgate/?url=https%3A%2F%2Fa.test%2F')
+  })
 })
 
 describe('copyText', () => {

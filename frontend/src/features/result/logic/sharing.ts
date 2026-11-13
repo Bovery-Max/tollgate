@@ -1,8 +1,9 @@
 // The shareable link: the app's own address plus ?url=<scanned link>, plus copying it to the clipboard.
 // There is no stored "result id": opening the link runs the scan again (the 60-minute cache usually returns the same reading).
 
-export function buildShareLink(origin: string, scannedUrl: string): string {
-  const link = new URL('/', origin)
+/** `basePath` is the path the app is served under ("/" locally, "/tollgate/" on GitHub Pages). */
+export function buildShareLink(origin: string, scannedUrl: string, basePath = '/'): string {
+  const link = new URL(basePath, origin)
   link.searchParams.set('url', scannedUrl)
   return link.toString()
 }

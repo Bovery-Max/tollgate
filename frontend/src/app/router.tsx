@@ -16,4 +16,5 @@ export const router = createBrowserRouter([
       { path: '*', element: <NotFoundPage /> },
     ],
   },
-])
+  // The app may be served under a sub-path (GitHub Pages: /tollgate/); Vite's base is the single source for it.
+], { basename: import.meta.env.BASE_URL })

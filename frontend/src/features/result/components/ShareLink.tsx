@@ -6,7 +6,7 @@ import { buildShareLink } from '../logic/sharing'
 import { useCopyLink } from '../hooks/useCopyLink'
 
 export function ShareLink({ scannedUrl }: { scannedUrl: string }) {
-  const link = buildShareLink(window.location.origin, scannedUrl)
+  const link = buildShareLink(window.location.origin, scannedUrl, import.meta.env.BASE_URL)
   const { status, copy } = useCopyLink(link)
   const field = useRef<HTMLInputElement>(null)
   const fieldId = useId()
