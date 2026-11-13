@@ -40,7 +40,7 @@ Tollgate takes a URL, asks four threat-intelligence sources about it in parallel
 
 ### Scan a link
 
-![Home screen with the link form and the list of sources](docs/screenshots/home.png)
+![Home screen with the link form, three example links (Safe, Suspicious, Dangerous) and the list of sources](docs/screenshots/home.png)
 
 ### Read the result
 
@@ -62,7 +62,7 @@ The same table for a link that is judged only by its own shape (look-alike chara
 
 ### History and statistics
 
-![History dashboard: summary, verdict split, most scanned hosts, recent scores and scan list](docs/screenshots/history.png)
+![History dashboard: summary, verdict split, most scanned hosts, recent scores and a scan list with Delete and Clear history buttons](docs/screenshots/history.png)
 
 ### Light theme and phones
 
@@ -238,7 +238,7 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173. In development Vite forwards `/api` calls to the backend, so there is no CORS policy to configure.
+Open http://localhost:5173/tollgate/ (the app is served under `/tollgate/`, the same path as on GitHub Pages). In development Vite forwards `/api` calls to the backend, so there is no CORS policy to configure.
 
 | Route | What it is |
 |---|---|
