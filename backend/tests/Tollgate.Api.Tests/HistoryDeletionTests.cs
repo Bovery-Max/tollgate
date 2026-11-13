@@ -15,6 +15,23 @@ public class HistoryDeletionTests
     }
 
     [Fact]
+    public async Task A_request_under_a_foreign_host_name_is_refused_and_deletes_nothing()
+    {
+        // DNS rebinding: a web page could point its own domain at this machine and send the
+        // browser's request here; only local host names are served, so the history survives.
+        using var server = new TollgateFactory();
+        var client = server.CreateClient();
+        await GetJsonAsync(client, ScanPath("example.com"));
+        var request = new HttpRequestMessage(HttpMethod.Delete, "/api/history");
+        request.Headers.Host = "evil.example";
+
+        var response = await client.SendAsync(request);
+
+        Assert.Equal(400, (int)response.StatusCode);
+        Assert.Single(await HistoryAsync(client));
+    }
+
+    [Fact]
     public async Task Deleting_one_scan_removes_it_from_history_statistics_and_cache()
     {
         using var server = new TollgateFactory();
