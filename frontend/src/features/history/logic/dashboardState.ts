@@ -21,13 +21,15 @@ export type DashboardState =
       loadedAt: number
     }
 
-export type DashboardAction =
+type DashboardAction =
   | { type: 'start' }
   | { type: 'loaded'; stats: StatsResponse; items: ScanHistoryEntry[]; at: number }
   | { type: 'failed'; failure: HistoryFailure }
   | { type: 'more-started' }
   | { type: 'more-loaded'; items: ScanHistoryEntry[]; requested: number; at: number }
   | { type: 'more-failed' }
+  /** Fresh numbers and rows after a deletion; keeps how many rows the user had opened. */
+  | { type: 'refreshed'; stats: StatsResponse; items: ScanHistoryEntry[]; at: number }
 
 export const INITIAL_STATE: DashboardState = { phase: 'loading' }
 
@@ -46,10 +48,12 @@ export function dashboardReducer(state: DashboardState, action: DashboardAction)
       return state.phase === 'ready' ? { ...state, items: action.items, requested: action.requested, more: 'idle', loadedAt: action.at } : state
     case 'more-failed':
       return state.phase === 'ready' ? { ...state, more: 'failed' } : state
+    case 'refreshed':
+      return state.phase === 'ready' ? { ...state, stats: action.stats, items: action.items, more: 'idle', loadedAt: action.at } : state
   }
 }
 
-export type ListEnd =
+type ListEnd =
   /** Every retained scan is on screen. */
   | 'complete'
   /** The server returned fewer rows than asked for although more exist: it caps how many it sends at once. */

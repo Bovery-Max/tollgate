@@ -1,7 +1,7 @@
 // Pure rule for the browser-tab title of each route, so a tab, the history list and a screen reader say where you are.
 import { hostOf } from '@/features/result/logic/reading'
 
-export const APP_NAME = 'Tollgate'
+const APP_NAME = 'Tollgate'
 
 const ROUTE_TITLES: Readonly<Record<string, string>> = {
   '/history': 'History and statistics',

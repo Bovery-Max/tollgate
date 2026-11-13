@@ -38,7 +38,11 @@ export interface paths {
         get: operations["ScanHistory"];
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Deletes every scan from the history
+         * @description Also empties the evidence cache, so no scanned link is left in the database.
+         */
+        delete: operations["ClearHistory"];
         options?: never;
         head?: never;
         patch?: never;
@@ -56,6 +60,26 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/history/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Deletes one scan from the history
+         * @description Also forgets the cached evidence for that link, so it is stored nowhere and the next scan asks the sources again.
+         */
+        delete: operations["DeleteScan"];
         options?: never;
         head?: never;
         patch?: never;
@@ -98,6 +122,8 @@ export interface components {
             instance?: null | string;
         };
         ScanHistoryEntry: {
+            /** Format: int64 */
+            id: number;
             url: string;
             host: string;
             /** Format: int32 */
@@ -249,6 +275,33 @@ export interface operations {
             };
         };
     };
+    ClearHistory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
     ScanStatistics: {
         parameters: {
             query?: never;
@@ -265,6 +318,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StatsResponse"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
+                };
+            };
+        };
+    };
+    DeleteScan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ProblemDetails"];
                 };
             };
             /** @description Too Many Requests */

@@ -3,6 +3,7 @@ import { lazy, Suspense } from 'react'
 import { useSearchParams } from 'react-router'
 import { ScanFailureNotice } from './ScanFailureNotice'
 import { EntryBand } from './EntryBand'
+import { ExampleLinks } from './ExampleLinks'
 import { ScanProgress } from './ScanProgress'
 import { SourcesPrimer } from './SourcesPrimer'
 import { useScan } from '../hooks/useScan'
@@ -42,7 +43,12 @@ export function ScanPage() {
 
       {state.phase === 'scanning' && <ScanProgress sources={state.sources} nextCheckAt={state.nextCheckAt} />}
       {state.phase === 'failed' && state.failure.kind !== 'invalid-url' && <ScanFailureNotice failure={state.failure} onRetry={retry} />}
-      {state.phase === 'idle' && <SourcesPrimer />}
+      {state.phase === 'idle' && (
+        <>
+          <ExampleLinks />
+          <SourcesPrimer />
+        </>
+      )}
     </section>
   )
 }

@@ -11,7 +11,7 @@ import { useDashboard } from '../hooks/useDashboard'
 import { VerdictSplit } from './VerdictSplit'
 
 export function HistoryPage() {
-  const { state, showMore, retry } = useDashboard()
+  const { state, showMore, retry, remove, clearAll } = useDashboard()
 
   return (
     <section className="flex flex-col gap-8">
@@ -40,6 +40,8 @@ export function HistoryPage() {
             now={state.loadedAt}
             more={state.more}
             onShowMore={showMore}
+            onDelete={remove}
+            onClear={clearAll}
           />
         </>
       )}

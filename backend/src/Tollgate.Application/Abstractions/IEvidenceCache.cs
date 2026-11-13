@@ -11,6 +11,12 @@ public interface IEvidenceCache
 
     /// <summary>Stores or replaces the evidence; its lifetime is counted from <see cref="CachedScan.ScannedAt"/>.</summary>
     Task SetAsync(string normalizedUrl, CachedScan scan, CancellationToken cancellationToken);
+
+    /// <summary>Forgets the evidence for one URL (nothing happens when there is none).</summary>
+    Task RemoveAsync(string normalizedUrl, CancellationToken cancellationToken);
+
+    /// <summary>Forgets all evidence.</summary>
+    Task ClearAsync(CancellationToken cancellationToken);
 }
 
 /// <param name="Evidence">Only sources that answered are non-null, so a re-scan asks just the missing ones.</param>

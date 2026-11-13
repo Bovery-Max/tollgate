@@ -13,6 +13,7 @@ const stats: StatsResponse = {
   topHosts: [],
 }
 const entry = (host: string): ScanHistoryEntry => ({
+  id: host.length,
   url: `https://${host}/`,
   host,
   score: 100,
@@ -61,6 +62,19 @@ describe('dashboardReducer', () => {
     expect(dashboardReducer(INITIAL_STATE, { type: 'more-loaded', items: [], requested: 40, at: 1 })).toEqual(INITIAL_STATE)
     expect(dashboardReducer(INITIAL_STATE, { type: 'more-failed' })).toEqual(INITIAL_STATE)
     expect(dashboardReducer(INITIAL_STATE, { type: 'more-started' })).toEqual(INITIAL_STATE)
+  })
+
+  it('takes fresh numbers and rows after a deletion but keeps how many rows were opened', () => {
+    const opened = dashboardReducer(ready(), { type: 'more-loaded', items: [entry('a.com'), entry('bb.com')], requested: 2 * PAGE_STEP, at: 2000 })
+    const fewer = { ...stats, totalScans: 1 }
+
+    const refreshed = dashboardReducer(opened, { type: 'refreshed', stats: fewer, items: [entry('bb.com')], at: 3000 })
+
+    expect(refreshed).toEqual({ phase: 'ready', stats: fewer, items: [entry('bb.com')], requested: 2 * PAGE_STEP, more: 'idle', loadedAt: 3000 })
+  })
+
+  it('ignores a refresh that arrives after the page was reloaded', () => {
+    expect(dashboardReducer(INITIAL_STATE, { type: 'refreshed', stats, items: [], at: 1 })).toEqual(INITIAL_STATE)
   })
 })
 

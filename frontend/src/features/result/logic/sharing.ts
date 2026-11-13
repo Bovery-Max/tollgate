@@ -7,10 +7,10 @@ export function buildShareLink(origin: string, scannedUrl: string): string {
   return link.toString()
 }
 
-export type CopyOutcome = 'copied' | 'denied'
+type CopyOutcome = 'copied' | 'denied'
 
 /** The part of the browser clipboard API we use; passed in so the failure paths can be tested without a browser. */
-export interface ClipboardLike {
+interface ClipboardLike {
   writeText(text: string): Promise<void>
 }
 

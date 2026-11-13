@@ -99,4 +99,21 @@ describe('runScan', () => {
 
     expect(states).toEqual([])
   })
+
+  it('ignores an answer that arrives after the scan was cancelled (the request itself is not cancelled)', async () => {
+    const controller = new AbortController()
+    const states: ScanFlowState[] = []
+    const deps: ScanRunnerDeps = {
+      fetchScan: async () => {
+        controller.abort() // e.g. React dev mode cleaned the effect up while the request was on its way
+        return { ok: true, result: response() }
+      },
+      sleep: async () => {},
+      now: () => 1_000,
+    }
+
+    await runScan('example.com', deps, (state) => states.push(state), controller.signal)
+
+    expect(states).toEqual([])
+  })
 })

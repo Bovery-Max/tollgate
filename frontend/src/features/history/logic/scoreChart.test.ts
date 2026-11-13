@@ -5,6 +5,7 @@ import { CHART, describeScores, scoreBars } from './scoreChart'
 
 const NOW = Date.parse('2026-11-11T12:00:00Z')
 const entry = (score: number, verdict: Verdict = 'Safe', host = 'example.com'): ScanHistoryEntry => ({
+  id: score,
   url: `https://${host}/`,
   host,
   score,

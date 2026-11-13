@@ -6,7 +6,7 @@ import { FRAGMENT_SHADER, VERTEX_SHADER } from './silkShader'
 /** Shadow, body, fold and highlight colours, darkest to lightest. */
 export type SilkPalette = [Rgb, Rgb, Rgb, Rgb]
 
-export interface SilkRenderer {
+interface SilkRenderer {
   /** Draws once more; used when the palette changed while the loop is not running. */
   redraw: () => void
   dispose: () => void

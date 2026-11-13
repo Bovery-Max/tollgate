@@ -1,7 +1,7 @@
 // Turns the statistics response into the numbers and bar widths the dashboard draws. Pure: no React, no network.
 import type { HostStatistics, StatsResponse, Verdict, VerdictCounts } from '@/lib/api/types'
 
-export interface Figure {
+interface Figure {
   label: string
   value: string
   note: string
@@ -32,7 +32,7 @@ export function summaryFigures(stats: StatsResponse): Figure[] {
   ]
 }
 
-export interface VerdictSegment {
+interface VerdictSegment {
   verdict: Verdict
   count: number
   /** Exact share of the bar (0 to 100), used for the segment width. */
@@ -64,7 +64,7 @@ export function describeVerdictSplit(segments: VerdictSegment[]): string {
   return segments.map((segment) => `${segment.verdict} ${segment.count}`).join(', ')
 }
 
-export interface HostBar {
+interface HostBar {
   host: string
   scans: number
   /** Bar width (0 to 100) relative to the busiest host. */

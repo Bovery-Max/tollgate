@@ -1,10 +1,10 @@
 // Pure theme rules: which preferences exist, how one resolves to dark/light, and how it is stored and applied.
 
 export type ThemePreference = 'system' | 'dark' | 'light'
-export type ResolvedTheme = 'dark' | 'light'
+type ResolvedTheme = 'dark' | 'light'
 
 // The same key and rule are repeated in the inline script of index.html, which must run before first paint.
-export const THEME_STORAGE_KEY = 'tollgate-theme'
+const THEME_STORAGE_KEY = 'tollgate-theme'
 
 const PREFERENCES: readonly ThemePreference[] = ['system', 'dark', 'light']
 

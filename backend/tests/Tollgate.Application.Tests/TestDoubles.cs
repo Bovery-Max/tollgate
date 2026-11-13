@@ -43,6 +43,18 @@ internal sealed class DictionaryCache : IEvidenceCache
         return Task.CompletedTask;
     }
 
+    public Task RemoveAsync(string normalizedUrl, CancellationToken cancellationToken)
+    {
+        entries.TryRemove(normalizedUrl, out _);
+        return Task.CompletedTask;
+    }
+
+    public Task ClearAsync(CancellationToken cancellationToken)
+    {
+        entries.Clear();
+        return Task.CompletedTask;
+    }
+
     public int Count => entries.Count;
 }
 
@@ -66,6 +78,12 @@ internal sealed class ListHistory : IScanHistory
 
     public Task<IReadOnlyList<ScanHistoryEntry>> GetRecentAsync(int limit, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<ScanHistoryEntry>>(Entries.AsEnumerable().Reverse().Take(limit).ToList());
+
+    public Task<string?> RemoveAsync(long id, CancellationToken cancellationToken) =>
+        throw new NotSupportedException("The orchestrator never deletes history.");
+
+    public Task ClearAsync(CancellationToken cancellationToken) =>
+        throw new NotSupportedException("The orchestrator never deletes history.");
 }
 
 /// <summary>A cache that is broken in both directions, like a locked database.</summary>
@@ -75,6 +93,12 @@ internal sealed class ThrowingCache : IEvidenceCache
         throw new InvalidOperationException("db locked");
 
     public Task SetAsync(string normalizedUrl, CachedScan scan, CancellationToken cancellationToken) =>
+        throw new InvalidOperationException("db locked");
+
+    public Task RemoveAsync(string normalizedUrl, CancellationToken cancellationToken) =>
+        throw new InvalidOperationException("db locked");
+
+    public Task ClearAsync(CancellationToken cancellationToken) =>
         throw new InvalidOperationException("db locked");
 }
 

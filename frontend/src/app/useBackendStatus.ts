@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { api } from '@/lib/api/client'
 import type { ScanMode } from '@/lib/api/types'
 
-export type BackendStatus =
+type BackendStatus =
   | { state: 'loading' }
   | { state: 'offline' }
   | { state: 'online'; mode: ScanMode; totalScans: number }

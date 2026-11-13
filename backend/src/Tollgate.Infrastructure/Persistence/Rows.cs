@@ -13,7 +13,7 @@ public sealed class CachedEvidenceRow
     public required DateTimeOffset ScannedAt { get; set; }
 }
 
-/// <summary>One finished scan. Append-only, so every row is a fact that never changes.</summary>
+/// <summary>One finished scan. Rows are added or deleted (retention, user's request) but never changed.</summary>
 public sealed class ScanHistoryRow
 {
     public long Id { get; set; }

@@ -123,6 +123,33 @@ public class SqliteEvidenceCacheTests
     }
 
     [Fact]
+    public async Task Removing_a_url_forgets_only_that_url()
+    {
+        await using var db = await CreateAsync();
+        await db.Cache.SetAsync("https://a.example/", new CachedScan(SomeEvidence, Start), default);
+        await db.Cache.SetAsync("https://b.example/", new CachedScan(SomeEvidence, Start), default);
+
+        await db.Cache.RemoveAsync("https://a.example/", default);
+        await db.Cache.RemoveAsync("https://never-cached.example/", default); // no error when there is nothing to forget
+
+        Assert.Null(await db.Cache.GetAsync("https://a.example/", default));
+        Assert.NotNull(await db.Cache.GetAsync("https://b.example/", default));
+    }
+
+    [Fact]
+    public async Task Clearing_forgets_every_url()
+    {
+        await using var db = await CreateAsync();
+        await db.Cache.SetAsync("https://a.example/", new CachedScan(SomeEvidence, Start), default);
+        await db.Cache.SetAsync("https://b.example/", new CachedScan(SomeEvidence, Start), default);
+
+        await db.Cache.ClearAsync(default);
+
+        await using var context = db.NewContext();
+        Assert.Equal(0, await context.CachedEvidence.CountAsync());
+    }
+
+    [Fact]
     public async Task Unreadable_stored_evidence_counts_as_a_miss_instead_of_an_error()
     {
         await using var db = await CreateAsync();

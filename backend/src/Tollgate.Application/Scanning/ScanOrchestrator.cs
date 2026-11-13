@@ -56,7 +56,7 @@ public sealed class ScanOrchestrator(
         if (outcome.IsComplete)
         {
             var entry = new ScanHistoryEntry(
-                normalizedUrl, url.IdnHost, outcome.Result.Score, outcome.Result.Verdict, outcome.Result.Confidence, clock.GetUtcNow());
+                0, normalizedUrl, url.IdnHost, outcome.Result.Score, outcome.Result.Verdict, outcome.Result.Confidence, clock.GetUtcNow());
             await BestEffortAsync("record the scan history", () => history.AddAsync(entry, cancellationToken), cancellationToken);
         }
 

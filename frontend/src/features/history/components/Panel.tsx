@@ -14,7 +14,8 @@ export function Panel({ id, title, aside, children }: PanelProps) {
   return (
     <section aria-labelledby={id} className="border border-border bg-card">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 border-b border-border px-4 py-2">
-        <h2 id={id} className="text-xl">
+        {/* tabIndex -1: focus can be moved here by code (e.g. after a deleted row disappears), but Tab skips it. */}
+        <h2 id={id} tabIndex={-1} className="text-xl outline-none">
           {title}
         </h2>
         {aside && <p className="label-caps text-muted-foreground">{aside}</p>}

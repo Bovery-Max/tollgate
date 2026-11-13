@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 const SIZE = 240
 const STROKE = 10
 const RADIUS = (SIZE - STROKE) / 2
-export const RING_CIRCUMFERENCE = 2 * Math.PI * RADIUS
+const RING_CIRCUMFERENCE = 2 * Math.PI * RADIUS
 
 // A decorative scale like a dial: a tick every 10 points, longer at 0/25/50/75. It marks no verdict thresholds on purpose
 // (those live in the backend configuration, and the UI must not keep a second copy).

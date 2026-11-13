@@ -2,7 +2,7 @@
 // Privacy: history stores the full URL, which may hold a token in its query string or a password before the
 // host. The list shows neither; it marks the cut with an ellipsis. The re-scan address still uses the full link.
 
-export interface DisplayLink {
+interface DisplayLink {
   /** The host; prefixed with an ellipsis and "@" when credentials were cut off in front of it. */
   host: string
   /** The path, ending in "?…" when a query string was cut off. */

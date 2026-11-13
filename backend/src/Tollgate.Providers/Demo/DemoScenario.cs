@@ -22,12 +22,20 @@ public enum DemoScenario
 
 public static class DemoScenarios
 {
+    /// <summary>
+    /// Google's official Safe Browsing test host: live Safe Browsing lists its pages on purpose, so the home page's
+    /// "Dangerous" example must read as malicious in demo mode too.
+    /// </summary>
+    public const string SafeBrowsingTestHost = "testsafebrowsing.appspot.com";
+
     // Hints are checked in this order, so a URL matching several gets the most severe one.
     public static DemoScenario For(Uri url)
     {
         var host = url.Host;
 
-        if (url.AbsolutePath.EndsWith(".exe", StringComparison.OrdinalIgnoreCase) || host.Contains("malware", StringComparison.OrdinalIgnoreCase))
+        if (url.AbsolutePath.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+            || host.Contains("malware", StringComparison.OrdinalIgnoreCase)
+            || host.Equals(SafeBrowsingTestHost, StringComparison.OrdinalIgnoreCase))
         {
             return DemoScenario.Malicious;
         }

@@ -4,7 +4,7 @@ import { copyText } from '../logic/sharing'
 
 const COPIED_VISIBLE_MS = 3000
 
-export type CopyStatus = 'idle' | 'copied' | 'denied'
+type CopyStatus = 'idle' | 'copied' | 'denied'
 
 export function useCopyLink(link: string) {
   const [status, setStatus] = useState<CopyStatus>('idle')

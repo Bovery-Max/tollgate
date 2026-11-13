@@ -1,4 +1,4 @@
-// GET /api/history and GET /api/stats: read-only views of the persistent scan history.
+// GET /api/history and GET /api/stats: views of the persistent scan history; DELETE /api/history[/{id}]: forgetting it.
 // Like the scan endpoint, they only translate between HTTP and the Application ports.
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -28,7 +28,49 @@ public static class HistoryEndpoints
             .Produces<StatsResponse>()
             .ProducesProblem(StatusCodes.Status429TooManyRequests);
 
+        api.MapDelete("/history/{id:long}", DeleteEntryAsync)
+            .WithName("DeleteScan")
+            .WithSummary("Deletes one scan from the history")
+            .WithDescription(
+                "Also forgets the cached evidence for that link, so it is stored nowhere and the next scan asks the sources again.")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
+
+        api.MapDelete("/history", ClearAsync)
+            .WithName("ClearHistory")
+            .WithSummary("Deletes every scan from the history")
+            .WithDescription("Also empties the evidence cache, so no scanned link is left in the database.")
+            .Produces(StatusCodes.Status204NoContent)
+            .ProducesProblem(StatusCodes.Status429TooManyRequests);
+
         return app;
+    }
+
+    private static async Task<IResult> DeleteEntryAsync(
+        long id,
+        IScanHistory history,
+        IEvidenceCache cache,
+        CancellationToken cancellationToken)
+    {
+        var url = await history.RemoveAsync(id, cancellationToken);
+        if (url is null)
+        {
+            return Results.Problem(statusCode: StatusCodes.Status404NotFound, title: "Scan not found");
+        }
+
+        await cache.RemoveAsync(url, cancellationToken);
+        return Results.NoContent();
+    }
+
+    private static async Task<IResult> ClearAsync(
+        IScanHistory history,
+        IEvidenceCache cache,
+        CancellationToken cancellationToken)
+    {
+        await history.ClearAsync(cancellationToken);
+        await cache.ClearAsync(cancellationToken);
+        return Results.NoContent();
     }
 
     private static async Task<IResult> HistoryAsync(

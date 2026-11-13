@@ -1,15 +1,15 @@
-// The real dependencies of the scan runner: the typed API client, an abortable timer and the clock.
+// The real dependencies of the scan runner: the typed API client (requests are never cancelled, see
+// ScanRunnerDeps.fetchScan), an abortable timer and the clock.
 import { api } from '@/lib/api/client'
 import { failureFromResponse } from '../logic/scanFailure'
 import type { FetchOutcome, ScanRunnerDeps } from '../logic/scanRunner'
 
-async function fetchScan(url: string, signal: AbortSignal): Promise<FetchOutcome> {
+async function fetchScan(url: string): Promise<FetchOutcome> {
   try {
-    const { data, error, response } = await api.GET('/api/scan', { params: { query: { url } }, signal })
+    const { data, error, response } = await api.GET('/api/scan', { params: { query: { url } } })
     if (data) return { ok: true, result: data }
     return { ok: false, failure: failureFromResponse(response.status, error?.detail, response.headers.get('Retry-After')) }
-  } catch (cause) {
-    if (signal.aborted) throw cause
+  } catch {
     return { ok: false, failure: { kind: 'offline' } } // fetch throws only when the server cannot be reached at all
   }
 }

@@ -12,7 +12,11 @@ export type ScanFlowState =
 export type FetchOutcome = { ok: true; result: ScanResponse } | { ok: false; failure: ScanFailure }
 
 export interface ScanRunnerDeps {
-  fetchScan(url: string, signal: AbortSignal): Promise<FetchOutcome>
+  /**
+   * Not cancellable on purpose: React's dev mode starts every effect twice, and a request cancelled in flight makes the
+   * server's database call throw, which stops a debugging session. A late answer is simply ignored (see runScan).
+   */
+  fetchScan(url: string): Promise<FetchOutcome>
   /** Resolves after the delay; rejects with an AbortError if the signal fires first. */
   sleep(milliseconds: number, signal: AbortSignal): Promise<void>
   now(): number
@@ -32,7 +36,7 @@ export async function runScan(
 ): Promise<void> {
   try {
     for (let recheck = 0; ; recheck++) {
-      const outcome = await deps.fetchScan(url, signal)
+      const outcome = await deps.fetchScan(url)
       if (signal.aborted) return
 
       if (!outcome.ok) return report({ phase: 'failed', failure: outcome.failure })

@@ -9,6 +9,7 @@ namespace Tollgate.Infrastructure.Tests;
 public class SqliteScanHistoryTests
 {
     internal static ScanHistoryEntry Entry(string host, int score, DateTimeOffset at, Verdict? verdict = null) => new(
+        0,
         $"https://{host}/page?id=1",
         host,
         score,
@@ -35,7 +36,46 @@ public class SqliteScanHistoryTests
 
         var recent = await db.History.GetRecentAsync(10, default);
 
-        Assert.Equal([newer, older], recent);
+        Assert.Equal([newer, older], recent.Select(e => e with { Id = 0 }));
+        Assert.All(recent, e => Assert.True(e.Id > 0));
+        Assert.NotEqual(recent[0].Id, recent[1].Id);
+    }
+
+    [Fact]
+    public async Task Removing_an_entry_deletes_only_that_one_and_returns_its_url()
+    {
+        await using var db = await CreateAsync();
+        await db.History.AddAsync(Entry("keep.example", 90, Start), default);
+        await db.History.AddAsync(Entry("gone.example", 90, Start), default);
+        var gone = (await db.History.GetRecentAsync(10, default)).Single(e => e.Host == "gone.example");
+
+        var url = await db.History.RemoveAsync(gone.Id, default);
+
+        Assert.Equal("https://gone.example/page?id=1", url);
+        Assert.Equal(["keep.example"], (await db.History.GetRecentAsync(10, default)).Select(e => e.Host));
+    }
+
+    [Fact]
+    public async Task Removing_an_unknown_id_returns_null_and_changes_nothing()
+    {
+        await using var db = await CreateAsync();
+        await db.History.AddAsync(Entry("keep.example", 90, Start), default);
+
+        Assert.Null(await db.History.RemoveAsync(12345, default));
+        Assert.Single(await db.History.GetRecentAsync(10, default));
+    }
+
+    [Fact]
+    public async Task Clearing_deletes_every_entry()
+    {
+        await using var db = await CreateAsync();
+        await db.History.AddAsync(Entry("a.example", 90, Start), default);
+        await db.History.AddAsync(Entry("b.example", 10, Start), default);
+
+        await db.History.ClearAsync(default);
+
+        await using var context = db.NewContext();
+        Assert.Equal(0, await context.ScanHistory.CountAsync());
     }
 
     [Fact]
@@ -104,7 +144,7 @@ public class SqliteScanHistoryTests
 
             await using var after = await CreateAsync(directory);
 
-            Assert.Equal([entry], await after.History.GetRecentAsync(10, default));
+            Assert.Equal([entry], (await after.History.GetRecentAsync(10, default)).Select(e => e with { Id = 0 }));
         }
         finally
         {

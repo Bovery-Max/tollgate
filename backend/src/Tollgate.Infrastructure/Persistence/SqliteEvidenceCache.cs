@@ -48,4 +48,16 @@ public sealed class SqliteEvidenceCache(
         var expiredBefore = clock.GetUtcNow() - lifetime;
         await db.CachedEvidence.Where(r => r.ScannedAt <= expiredBefore).ExecuteDeleteAsync(cancellationToken);
     }
+
+    public async Task RemoveAsync(string normalizedUrl, CancellationToken cancellationToken)
+    {
+        await using var db = await contexts.CreateDbContextAsync(cancellationToken);
+        await db.CachedEvidence.Where(r => r.Url == normalizedUrl).ExecuteDeleteAsync(cancellationToken);
+    }
+
+    public async Task ClearAsync(CancellationToken cancellationToken)
+    {
+        await using var db = await contexts.CreateDbContextAsync(cancellationToken);
+        await db.CachedEvidence.ExecuteDeleteAsync(cancellationToken);
+    }
 }

@@ -1,13 +1,17 @@
 // The list of recent scans. Every row is an ordinary link that scans the same link again (so right-click, new tab and
 // keyboard Enter all work). Rows show host and path only: the query string and any credentials stay hidden (see links.ts).
+// Each row has its own delete button beside the link (a button cannot sit inside a link), and the list can be cleared.
 import { Link } from 'react-router'
 import { VerdictBadge } from '@/components/brand/VerdictBadge'
 import { Button } from '@/components/ui/button'
 import type { ScanHistoryEntry } from '@/lib/api/types'
 import { listEnd, type MoreState } from '../logic/dashboardState'
 import { displayLink, rescanPath } from '../logic/links'
+import { ConfirmAction } from './ConfirmAction'
 import { Panel } from './Panel'
 import { formatExact, formatRowMeta } from '../logic/when'
+
+const TITLE_ID = 'scans-title'
 
 interface RecentScansProps {
   items: ScanHistoryEntry[]
@@ -18,28 +22,45 @@ interface RecentScansProps {
   now: number
   more: MoreState
   onShowMore: () => void
+  onDelete: (id: number) => Promise<boolean>
+  onClear: () => Promise<boolean>
 }
 
-export function RecentScans({ items, total, retentionDays, requested, now, more, onShowMore }: RecentScansProps) {
+export function RecentScans({ items, total, retentionDays, requested, now, more, onShowMore, onDelete, onClear }: RecentScansProps) {
   const end = listEnd(items.length, total, requested)
 
+  // The deleted row disappears together with its focused button; the list title takes the focus instead of the page top.
+  const deleteRow = async (id: number) => {
+    const done = await onDelete(id)
+    if (done) document.getElementById(TITLE_ID)?.focus()
+    return done
+  }
+
   return (
-    <Panel id="scans-title" title="Recent scans" aside={`${items.length} of ${total}`}>
-      <div className="border-b border-border px-4 py-3">
+    <Panel id={TITLE_ID} title="Recent scans" aside={`${items.length} of ${total}`}>
+      <div className="flex flex-col items-start gap-3 border-b border-border px-4 py-3">
         <p className="max-w-prose text-sm text-muted-foreground">
           Opening a row scans the link again; the result may differ from the one saved here. Links are stored in full for {retentionDays}{' '}
-          days on this machine. This list hides everything after “?” and any password in front of the host.
+          days on this machine. This list hides everything after “?” and any password in front of the host. Deleting a scan also
+          forgets its cached result.
         </p>
+        <ConfirmAction
+          trigger="Clear history"
+          question={`Delete all ${total} scans and their cached results? This cannot be undone.`}
+          confirmLabel="Delete all"
+          failureText="The history could not be cleared. Nothing was deleted; try again."
+          onConfirm={onClear}
+        />
       </div>
 
       <ul>
         {items.map((item) => {
           const link = displayLink(item.url)
           return (
-            <li key={`${item.scannedAt}-${item.url}`} className="border-b border-border last:border-b-0">
+            <li key={item.id} className="flex flex-wrap items-center gap-x-2 border-b border-border pr-3 last:border-b-0">
               <Link
                 to={rescanPath(item.url)}
-                className="grid grid-cols-[3.5rem_1fr] items-center gap-x-3 gap-y-1 px-4 py-3 outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset sm:grid-cols-[3.5rem_6.5rem_1fr_auto]"
+                className="min-w-0 flex-1 grid grid-cols-[3.5rem_1fr] items-center gap-x-3 gap-y-1 px-4 py-3 outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset sm:grid-cols-[3.5rem_6.5rem_1fr_auto]"
               >
                 <span className="row-span-2 font-mono text-2xl sm:row-span-1">
                   <span className="sr-only">Scan again, score </span>
@@ -63,6 +84,14 @@ export function RecentScans({ items, total, retentionDays, requested, now, more,
                   </time>
                 </span>
               </Link>
+              <ConfirmAction
+                trigger="Delete"
+                triggerLabel={`Delete ${link.host} from history`}
+                question="Delete this scan from history?"
+                confirmLabel="Delete"
+                failureText="This scan could not be deleted; try again."
+                onConfirm={() => deleteRow(item.id)}
+              />
             </li>
           )
         })}

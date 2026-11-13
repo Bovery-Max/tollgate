@@ -44,7 +44,28 @@ public sealed class SqliteScanHistory(
             .ToListAsync(cancellationToken);
 
         return rows
-            .Select(r => new ScanHistoryEntry(r.Url, r.Host, r.Score, r.Verdict, r.Confidence, r.ScannedAt))
+            .Select(r => new ScanHistoryEntry(r.Id, r.Url, r.Host, r.Score, r.Verdict, r.Confidence, r.ScannedAt))
             .ToList();
+    }
+
+    public async Task<string?> RemoveAsync(long id, CancellationToken cancellationToken)
+    {
+        await using var db = await contexts.CreateDbContextAsync(cancellationToken);
+
+        var row = await db.ScanHistory.SingleOrDefaultAsync(r => r.Id == id, cancellationToken);
+        if (row is null)
+        {
+            return null;
+        }
+
+        db.ScanHistory.Remove(row);
+        await db.SaveChangesAsync(cancellationToken);
+        return row.Url;
+    }
+
+    public async Task ClearAsync(CancellationToken cancellationToken)
+    {
+        await using var db = await contexts.CreateDbContextAsync(cancellationToken);
+        await db.ScanHistory.ExecuteDeleteAsync(cancellationToken);
     }
 }

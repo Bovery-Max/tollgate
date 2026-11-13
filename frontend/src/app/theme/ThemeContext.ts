@@ -2,7 +2,7 @@
 import { createContext } from 'react'
 import type { ThemePreference } from './theme'
 
-export interface ThemeContextValue {
+interface ThemeContextValue {
   preference: ThemePreference
   setPreference: (preference: ThemePreference) => void
 }

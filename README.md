@@ -31,6 +31,8 @@ Tollgate takes a URL, asks four threat-intelligence sources about it in parallel
 - **Plain-language explanations.** Each finding has a one-sentence explanation and the page starts with a one-sentence summary.
 - **Shareable link.** The address bar holds the scanned link (`/?url=...`), so a result can be re-opened or shared.
 - **History and statistics.** Verdict split, most scanned hosts, recent scores and a list of past scans, all kept locally for 90 days.
+- **Delete what you scanned.** Remove one scan or clear the whole history with one button (it asks first). The link's cached result is forgotten too, so nothing of it stays in the database.
+- **Try an example.** Three example links under the form (Safe, Suspicious, Dangerous) show a full reading before you scan your own link. They only run a scan; the sites themselves are never opened.
 - **Demo mode.** With no API keys the whole app runs on simulated sources, which is also a safety net for presentations. Demo and live mode use the **same** scoring code.
 - **Designed, not templated.** An "instrument panel" look with dark and light themes, a scroll-driven score reveal and a reduced-motion fallback.
 
@@ -124,6 +126,7 @@ Notes:
 - Rows 3, 4, 5, 7, 8 and 9 are **local analysis only**, so you get the same deductions in live mode. Live mode may add more, because real sources can know more about a domain.
 - Rows 1, 2, 6 and 10 depend on simulated sources. In live mode the same text can score differently: for example `example.com` currently loses 16 points to old URLhaus records (**84**, still Safe). That is real data and a good example of the explanation table.
 - Row 4 uses `203.0.113.7`, an address reserved for documentation. Tollgate only studies the *text* of a link and never connects to it.
+- The home page's own examples are `wikipedia.org` (100), `paypa1.com` (55) and `testsafebrowsing.appspot.com/s/malware.html` (0 in demo mode). The last one is Google's official Safe Browsing test page: harmless, but listed as malware on purpose, so live mode also reads it as Dangerous.
 - The extra demo names `slow-site.com` (VirusTotal answers late, so the page polls) and `malware-test.example` (scores 0) show the pending state and another Dangerous reading.
 
 ## Architecture
@@ -258,6 +261,8 @@ The contract is published as OpenAPI and the frontend client is generated from i
 | `GET /api/scan?url=<url>` | Score, verdict, confidence, findings and per-source state. While VirusTotal is still analysing, `status` is `Partial` (provisional score): ask again after a few seconds, the finished reading has `status: "Complete"` |
 | `GET /api/history?limit=<n>` | The newest finished scans |
 | `GET /api/stats` | Totals, average score, verdict split, dangerous ratio and most scanned hosts |
+| `DELETE /api/history/{id}` | Deletes one scan (`id` comes from `/api/history`) and forgets that link's cached result. `204`, or `404` if there is no such scan |
+| `DELETE /api/history` | Deletes every scan and empties the cache. `204` |
 
 Example (`GET /api/scan?url=free-bonus.xyz` in demo mode):
 
@@ -291,11 +296,11 @@ Each finding carries a stable `kind` code. Clients, including this frontend, key
 ## Testing
 
 ```powershell
-# Backend (from backend/): 352 tests
+# Backend (from backend/): 363 tests
 dotnet test
 
 # Frontend (from frontend/)
-npm test          # 106 tests of the pure logic
+npm test          # 109 tests of the pure logic
 npm run build     # type-check + production bundle
 npm run lint
 ```
@@ -306,8 +311,8 @@ npm run lint
 | Scoring | 143 | The score engine and local heuristics, read from the real `appsettings.json` |
 | Providers | 65 | Each adapter against a fake HTTP handler |
 | Application | 16 | The orchestrator with scripted providers: parallelism, cache, failure isolation |
-| Infrastructure | 33 | SQLite cache and history on a real temp file, VirusTotal queue |
-| Api | 67 | The whole app started in memory, no keys and no internet needed |
+| Infrastructure | 38 | SQLite cache and history on a real temp file (including deletion), VirusTotal queue |
+| Api | 73 | The whole app started in memory, no keys and no internet needed |
 
 Frontend tests cover logic only (scan polling state machine, failure mapping, result reading, plain-language wording, share link, chart geometry and so on). Components are checked visually at 390 px and 1280 px.
 

@@ -33,6 +33,19 @@ public class DemoModeScanTests : IDisposable
         Assert.Equal("High", body.GetProperty("confidence").GetString());
     }
 
+    // The "Try an example" links on the home page; the frontend shows these verdicts before the scan runs.
+    [Theory]
+    [InlineData("https://wikipedia.org/", 100, "Safe")]
+    [InlineData("https://paypa1.com/", 55, "Suspicious")]
+    [InlineData("https://testsafebrowsing.appspot.com/s/malware.html", 0, "Dangerous")]
+    public async Task The_home_page_examples_read_as_their_expected_verdicts(string url, int score, string verdict)
+    {
+        var (_, body) = await GetJsonAsync(factory.CreateClient(), ScanPath(url));
+
+        Assert.Equal(score, body.GetProperty("score").GetInt32());
+        Assert.Equal(verdict, body.GetProperty("verdict").GetString());
+    }
+
     [Fact]
     public async Task Every_deduction_is_listed_with_its_source()
     {

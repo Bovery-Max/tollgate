@@ -14,7 +14,7 @@ export const CHART = {
   minBarHeight: 3,
 } as const
 
-export interface ScoreBar {
+interface ScoreBar {
   x: number
   y: number
   width: number
